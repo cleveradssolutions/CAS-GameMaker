@@ -1,0 +1,1 @@
+show_message_async(CAS_isRewardedAdReady() == 1 ? "Rewarded Ad is ready" : "Rewarded Ad not ready")
