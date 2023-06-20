@@ -11,7 +11,7 @@ To get started, here is the link to [GameMaker plugin integration documentation]
 
 ## Demo application
 The Integration Demo application demonstrate how to integrate the CAS in your app.  
-[Repository Game Maker Sample Application](https://github.com/cleveradssolutions/CAS-Unity-Sample)
+[Repository Game Maker Sample Application]((https://github.com/cleveradssolutions/CAS-GameMaker/tree/main/CAS-Project))
 
 ## GitHub issue tracker
 To file bugs, make feature requests, or suggest improvements for the Game Maker Plugin SDK, please use [GitHub's issue tracker](https://github.com/cleveradssolutions/CAS-GameMaker/issues).
