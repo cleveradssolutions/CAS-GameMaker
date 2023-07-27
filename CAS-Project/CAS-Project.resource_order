@@ -1,4 +1,6 @@
 {
   "FolderOrderSettings": [],
-  "ResourceOrderSettings": [],
+  "ResourceOrderSettings": [
+    {"name":"CAS","order":1,"path":"extensions/CAS/CAS.yy",},
+  ],
 }

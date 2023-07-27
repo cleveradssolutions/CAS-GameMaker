@@ -8,10 +8,7 @@ import androidx.annotation.NonNull;
 import com.cleversolutions.ads.AdCallback;
 import com.cleversolutions.ads.AdStatusHandler;
 import com.cleversolutions.ads.AdType;
-import com.cleversolutions.ads.AdsSettings;
-import com.cleversolutions.ads.Audience;
-import com.cleversolutions.ads.CCPAStatus;
-import com.cleversolutions.ads.ConsentStatus;
+import com.cleversolutions.ads.ConsentFlow;
 import com.cleversolutions.ads.InitialConfiguration;
 import com.cleversolutions.ads.MediationManager;
 import com.cleversolutions.ads.android.CAS;
@@ -26,18 +23,6 @@ public class CAS_GMwrapper {
     private final static int ASYNC_RESPONSE_ON_REWARD = 324402;
     private final static int ASYNC_RESPONSE_ON_INTERSTITIAL_COMPLETE = 324403;
 
-    private final static int AUDIENCE_UNDEFINED = 0;
-    private final static int AUDIENCE_CHILDREN = 1;
-    private final static int AUDIENCE_NOT_CHILDREN = 2;
-
-    private final static int CONSENT_STATUS_UNDEFINED = 0;
-    private final static int CONSENT_STATUS_ACCEPTED = 1;
-    private final static int CONSENT_STATUS_DENIED = 2;
-
-    private final static int CCPA_STATUS_UNDEFINED = 0;
-    private final static int CCPA_STATUS_OPT_OUT_SALE = 1;
-    private final static int CCPA_STATUS_OPT_IN_SALE = 2;
-
     //private final static int AD_TYPE_BANNER = 1 << 0;
     private final static int AD_TYPE_INTERSTITIAL = 1 << 1;
     private final static int AD_TYPE_REWARDED = 1 << 2;
@@ -45,7 +30,8 @@ public class CAS_GMwrapper {
     private static MediationManager mediationManager;
     private static AdCallback rewardedAdCallback, interstitialCallback;
 
-    public static void initialize(String casId, double adTypes, double taggedAudience, double consentStatus, double ccpaStatus, double testMode) {
+    //public static void initialize(String casId, double adTypes, double taggedAudience, double consentStatus, double ccpaStatus, double testMode) {
+    public static void initialize(String casId, double adTypes, String privacyPolicyURL, double testMode) {
         int adTypesInt = (int)Math.round(adTypes);
         ArrayList<AdType> adTypesAL = new ArrayList<>(1);
         if ((adTypesInt & AD_TYPE_INTERSTITIAL) == AD_TYPE_INTERSTITIAL)
@@ -97,46 +83,6 @@ public class CAS_GMwrapper {
             public void onClosed() {}
         };
 
-        //tagged audience
-        AdsSettings settings = CAS.getSettings();
-        switch ((int)Math.round(taggedAudience)) {
-            case AUDIENCE_UNDEFINED:
-                settings.setTaggedAudience(Audience.UNDEFINED);
-                break;
-            case AUDIENCE_CHILDREN:
-                settings.setTaggedAudience(Audience.CHILDREN);
-                break;
-            case AUDIENCE_NOT_CHILDREN:
-                settings.setTaggedAudience(Audience.NOT_CHILDREN);
-                break;
-        }
-
-        //consent status
-        switch ((int)Math.round(consentStatus)) {
-            case CONSENT_STATUS_UNDEFINED:
-                settings.setUserConsent(ConsentStatus.UNDEFINED);
-                break;
-            case CONSENT_STATUS_ACCEPTED:
-                settings.setUserConsent(ConsentStatus.ACCEPTED);
-                break;
-            case CONSENT_STATUS_DENIED:
-                settings.setUserConsent(ConsentStatus.DENIED);
-                break;
-        }
-
-        //CCPA status
-        switch ((int)Math.round(ccpaStatus)) {
-            case CCPA_STATUS_UNDEFINED:
-                settings.setCcpaStatus(CCPAStatus.UNDEFINED);
-                break;
-            case CCPA_STATUS_OPT_OUT_SALE:
-                settings.setCcpaStatus(CCPAStatus.OPT_OUT_SALE);
-                break;
-            case CCPA_STATUS_OPT_IN_SALE:
-                settings.setCcpaStatus(CCPAStatus.OPT_IN_SALE);
-                break;
-        }
-
         mediationManager = CAS.buildManager()
                 .withCasId(casId)
                 .withCompletionListener((InitialConfiguration config) -> {
@@ -151,6 +97,7 @@ public class CAS_GMwrapper {
                 })
                 .withAdTypes(adTypesAL.toArray(adTypesAr))
                 .withTestAdMode(testMode == 1)
+                .withConsentFlow(new ConsentFlow().withPrivacyPolicy(privacyPolicyURL))
                 .initialize(RunnerActivity.CurrentActivity);
     }
 
