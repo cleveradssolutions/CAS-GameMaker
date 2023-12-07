@@ -4,8 +4,8 @@
   "name": "CAS",
   "androidactivityinject": "",
   "androidclassname": "CAS_GMwrapper",
-  "androidcodeinjection": "<YYAndroidTopLevelGradleAllprojectsRepositories>\r\n     maven { url = \"https://android-sdk.is.com/\" } // IronSource\r\n     maven { url = \"https://aa-sdk.s3-eu-west-1.amazonaws.com/android_repo\" } // SuperAwesome\r\n     maven { url = \"https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea\" } // Mintegral\r\n     maven { url = \"https://artifact.bytedance.com/repository/pangle\" } // Pangle\r\n     maven { url = \"https://sdk.tapjoy.com/\" } // TapJoy\r\n     maven { url = \"https://cboost.jfrog.io/artifactory/chartboost-ads/\" } // Chartboost\r\n</YYAndroidTopLevelGradleAllprojectsRepositories>\r\n\r\n<YYAndroidGradleDependencies >\r\n    implementation 'com.cleveradssolutions:cas:3.1.9'\r\n</YYAndroidGradleDependencies >\r\n\r\n<YYAndroidManifestApplicationInject>\r\n        <meta-data\r\n            android:name=\"com.google.android.gms.ads.APPLICATION_ID\"\r\n            android:value=\"ca-app-pub-8858162097015410~4385267910\"/>\r\n        <meta-data\r\n            android:name=\"com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT\"\r\n            android:value=\"true\"/>\r\n</YYAndroidManifestApplicationInject>",
-  "androidinject": "\r\n        <meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"ca-app-pub-8858162097015410~4385267910\"></meta-data>\r\n        <meta-data android:name=\"com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT\" android:value=\"true\"></meta-data>\r\n",
+  "androidcodeinjection": "<YYAndroidTopLevelGradleAllprojectsRepositories>\r\n     maven { url = \"https://android-sdk.is.com/\" } // IronSource\r\n     maven { url = \"https://aa-sdk.s3-eu-west-1.amazonaws.com/android_repo\" } // SuperAwesome\r\n     maven { url = \"https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea\" } // Mintegral\r\n     maven { url = \"https://artifact.bytedance.com/repository/pangle\" } // Pangle\r\n     maven { url = \"https://sdk.tapjoy.com/\" } // TapJoy\r\n     maven { url = \"https://cboost.jfrog.io/artifactory/chartboost-ads/\" } // Chartboost\r\n</YYAndroidTopLevelGradleAllprojectsRepositories>\r\n\r\n<YYAndroidGradleDependencies >\r\n    implementation 'com.cleveradssolutions:cas:3.5.0'\r\n</YYAndroidGradleDependencies >\r\n\r\n<YYAndroidManifestApplicationInject>\r\n        <meta-data\r\n            android:name=\"com.google.android.gms.ads.APPLICATION_ID\"\r\n            android:value=\"ca-app-pub-0000000000000000~0000000000\"/>\r\n        <meta-data\r\n            android:name=\"com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT\"\r\n            android:value=\"true\"/>\r\n</YYAndroidManifestApplicationInject>",
+  "androidinject": "\r\n        <meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"ca-app-pub-0000000000000000~0000000000\"></meta-data>\r\n        <meta-data android:name=\"com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT\" android:value=\"true\"></meta-data>\r\n",
   "androidmanifestinject": "",
   "androidPermissions": [],
   "androidProps": true,
@@ -18,7 +18,7 @@
   "exportToGame": true,
   "extensionVersion": "0.0.1",
   "files": [
-    {"resourceType":"GMExtensionFile","resourceVersion":"1.0","name":"","constants":[
+    {"resourceType":"GMExtensionFile","resourceVersion":"1.0","name":"CAS.ext","constants":[
         {"resourceType":"GMExtensionConstant","resourceVersion":"1.0","name":"CAS_AD_TYPE_INTERSTITIAL","hidden":false,"value":"2",},
         {"resourceType":"GMExtensionConstant","resourceVersion":"1.0","name":"CAS_AD_TYPE_REWARDED","hidden":false,"value":"4",},
         {"resourceType":"GMExtensionConstant","resourceVersion":"1.0","name":"CAS_ASYNC_RESPONSE_INITIALIZED","hidden":false,"value":"324400",},
@@ -44,7 +44,7 @@
         {"name":"CAS_showInterstitialAd","path":"extensions/CAS/CAS.yy",},
       ],"origname":"","ProxyFiles":[],"uncompress":false,"usesRunnerInterface":false,},
   ],
-  "gradleinject": "\r\n    implementation 'com.cleveradssolutions:cas:3.1.9'\r\n",
+  "gradleinject": "\r\n    implementation 'com.cleveradssolutions:cas:3.5.0'\r\n",
   "hasConvertedCodeInjection": true,
   "helpfile": "",
   "HTML5CodeInjection": "",

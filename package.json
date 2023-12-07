@@ -1,9 +1,9 @@
 {
     "name": "com.cleversolutions.ads.gamemaker",
-    "version": "3.2.1",
+    "version": "3.5.0",
     "displayName": "CleverAdsSolutions",
     "description": "Clever Ads Solutions GameMaker wrapper for mobile ads on platforms Android and iOS.",
-    "GameMaker": "2023.6.0.92",
+    "GameMaker": "2023.11.0.121",
     "documentationUrl": "https://github.com/cleveradssolutions/CAS-GameMaker/wiki",
     "keywords": [
         "CAS",
