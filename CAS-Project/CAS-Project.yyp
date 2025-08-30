@@ -1,44 +1,49 @@
 {
-  "resourceType": "GMProject",
-  "resourceVersion": "1.7",
-  "name": "CAS-Project",
-  "AudioGroups": [
-    {"resourceType":"GMAudioGroup","resourceVersion":"1.3","name":"audiogroup_default","targets":-1,},
+  "$GMProject":"v1",
+  "%Name":"CAS-Project",
+  "AudioGroups":[
+    {"$GMAudioGroup":"","%Name":"audiogroup_default","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
   ],
-  "configs": {
-    "children": [],
-    "name": "Default",
+  "configs":{
+    "children":[],
+    "name":"Default",
   },
-  "defaultScriptType": 1,
-  "Folders": [
-    {"resourceType":"GMFolder","resourceVersion":"1.0","name":"Buttons","folderPath":"folders/Buttons.yy",},
+  "defaultScriptType":1,
+  "Folders":[
+    {"$GMFolder":"","%Name":"CAS","folderPath":"folders/CAS.yy","name":"CAS","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"Buttons","folderPath":"folders/CAS/Buttons.yy","name":"Buttons","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"spr","folderPath":"folders/CAS/Buttons/spr.yy","name":"spr","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"Extensions","folderPath":"folders/Extensions.yy","name":"Extensions","resourceType":"GMFolder","resourceVersion":"2.0",},
   ],
-  "IncludedFiles": [],
-  "isEcma": false,
-  "LibraryEmitters": [],
-  "MetaData": {
-    "IDEVersion": "2023.11.0.121",
+  "ForcedPrefabProjectReferences":[],
+  "IncludedFiles":[],
+  "isEcma":false,
+  "LibraryEmitters":[],
+  "MetaData":{
+    "IDEVersion":"2024.13.1.193",
   },
-  "resources": [
-    {"id":{"name":"sprInitCAS","path":"sprites/sprInitCAS/sprInitCAS.yy",},},
-    {"id":{"name":"Instructions","path":"notes/Instructions/Instructions.yy",},},
+  "name":"CAS-Project",
+  "resources":[
+    {"id":{"name":"CAS","path":"extensions/CAS/CAS.yy",},},
+    {"id":{"name":"btnInitCAS","path":"objects/btnInitCAS/btnInitCAS.yy",},},
     {"id":{"name":"btnIsInterstitialReady","path":"objects/btnIsInterstitialReady/btnIsInterstitialReady.yy",},},
+    {"id":{"name":"btnIsRewardedAdReady","path":"objects/btnIsRewardedAdReady/btnIsRewardedAdReady.yy",},},
+    {"id":{"name":"btnShowInterstitialAd","path":"objects/btnShowInterstitialAd/btnShowInterstitialAd.yy",},},
+    {"id":{"name":"btnShowRewardedAd","path":"objects/btnShowRewardedAd/btnShowRewardedAd.yy",},},
+    {"id":{"name":"room_test","path":"rooms/room_test/room_test.yy",},},
+    {"id":{"name":"sprInitCAS","path":"sprites/sprInitCAS/sprInitCAS.yy",},},
+    {"id":{"name":"sprIsInterstitialReady","path":"sprites/sprIsInterstitialReady/sprIsInterstitialReady.yy",},},
     {"id":{"name":"sprIsRewardedAdReady","path":"sprites/sprIsRewardedAdReady/sprIsRewardedAdReady.yy",},},
     {"id":{"name":"sprShowInterstitialAd","path":"sprites/sprShowInterstitialAd/sprShowInterstitialAd.yy",},},
-    {"id":{"name":"btnShowRewardedAd","path":"objects/btnShowRewardedAd/btnShowRewardedAd.yy",},},
-    {"id":{"name":"CAS","path":"extensions/CAS/CAS.yy",},},
-    {"id":{"name":"btnShowInterstitialAd","path":"objects/btnShowInterstitialAd/btnShowInterstitialAd.yy",},},
-    {"id":{"name":"btnInitCAS","path":"objects/btnInitCAS/btnInitCAS.yy",},},
-    {"id":{"name":"btnIsRewardedAdReady","path":"objects/btnIsRewardedAdReady/btnIsRewardedAdReady.yy",},},
     {"id":{"name":"sprShowRewardedAd","path":"sprites/sprShowRewardedAd/sprShowRewardedAd.yy",},},
-    {"id":{"name":"sprIsInterstitialReady","path":"sprites/sprIsInterstitialReady/sprIsInterstitialReady.yy",},},
-    {"id":{"name":"room_test","path":"rooms/room_test/room_test.yy",},},
   ],
-  "RoomOrderNodes": [
+  "resourceType":"GMProject",
+  "resourceVersion":"2.0",
+  "RoomOrderNodes":[
     {"roomId":{"name":"room_test","path":"rooms/room_test/room_test.yy",},},
   ],
-  "templateType": null,
-  "TextureGroups": [
-    {"resourceType":"GMTextureGroup","resourceVersion":"1.3","name":"Default","autocrop":true,"border":2,"compressFormat":"bz2","directory":"","groupParent":null,"isScaled":true,"loadType":"default","mipsToGenerate":0,"targets":-1,},
+  "templateType":null,
+  "TextureGroups":[
+    {"$GMTextureGroup":"","%Name":"Default","autocrop":true,"border":2,"compressFormat":"bz2","customOptions":"","directory":"","groupParent":null,"isScaled":true,"loadType":"default","mipsToGenerate":0,"name":"Default","resourceType":"GMTextureGroup","resourceVersion":"2.0","targets":-1,},
   ],
 }

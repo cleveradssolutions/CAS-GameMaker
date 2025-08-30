@@ -1,2 +1,3 @@
-var casId = os_type == os_android ? "com.company.product" : "1000000000"
-CAS_initialize(casId, CAS_AD_TYPE_REWARDED | CAS_AD_TYPE_INTERSTITIAL, "https://stackoverflow.com/", 1)
+var casId = "com.company.product";// package name your game
+CAS_initialize(casId, 1)
+//casID and use Test Mode or not

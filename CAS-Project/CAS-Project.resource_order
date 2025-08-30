@@ -1,6 +1,18 @@
 {
-  "FolderOrderSettings": [],
-  "ResourceOrderSettings": [
-    {"name":"CAS","order":1,"path":"extensions/CAS/CAS.yy",},
+  "FolderOrderSettings":[
+    {"name":"CAS","order":5,"path":"folders/CAS.yy",},
+    {"name":"Buttons","order":2,"path":"folders/CAS/Buttons.yy",},
+    {"name":"Extensions","order":6,"path":"folders/Extensions.yy",},
+  ],
+  "ResourceOrderSettings":[
+    {"name":"btnInitCAS","order":3,"path":"objects/btnInitCAS/btnInitCAS.yy",},
+    {"name":"btnIsInterstitialReady","order":1,"path":"objects/btnIsInterstitialReady/btnIsInterstitialReady.yy",},
+    {"name":"btnIsRewardedAdReady","order":5,"path":"objects/btnIsRewardedAdReady/btnIsRewardedAdReady.yy",},
+    {"name":"btnShowInterstitialAd","order":2,"path":"objects/btnShowInterstitialAd/btnShowInterstitialAd.yy",},
+    {"name":"btnShowRewardedAd","order":4,"path":"objects/btnShowRewardedAd/btnShowRewardedAd.yy",},
+    {"name":"sprInitCAS","order":1,"path":"sprites/sprInitCAS/sprInitCAS.yy",},
+    {"name":"sprIsInterstitialReady","order":3,"path":"sprites/sprIsInterstitialReady/sprIsInterstitialReady.yy",},
+    {"name":"sprIsRewardedAdReady","order":2,"path":"sprites/sprIsRewardedAdReady/sprIsRewardedAdReady.yy",},
+    {"name":"sprShowRewardedAd","order":4,"path":"sprites/sprShowRewardedAd/sprShowRewardedAd.yy",},
   ],
 }

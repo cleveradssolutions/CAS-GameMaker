@@ -1,7 +1,0 @@
-iOS
-
-Можно задавать свое сообщение для App Tracking Transparency authorization request:
-https://github.com/cleveradssolutions/CAS-iOS/wiki/Update-app-Info.plist#user-tracking-usage-description
-В настройках экстеншена в Code injection есть ключ NSUserTrackingUsageDescription
-
-В XCode проект надо вручную закидывать cas_settings.json. По идее или в корень самого проекта, или в папку с именем проекта (на этом же уровне идут папки <Имя проекта> Tests, Frameworks и др)

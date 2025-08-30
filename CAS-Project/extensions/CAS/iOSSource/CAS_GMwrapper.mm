@@ -48,6 +48,18 @@ static int const CCPA_STATUS_OPT_IN_SALE = 2;
 extern UIViewController *g_controller;
 
 RewardedCallback *rewardedCallback;
+CASBannerView *bannerView;
+
+-(void) positionBannerViewAtBottomOfSafeArea:(UIView *)bannerView {
+    // Проверка на наличие безопасной зоны
+    UILayoutGuide *guide = g_controller.view.safeAreaLayoutGuide;
+    
+    // Создание ограничений для позиционирования баннера
+    [NSLayoutConstraint activateConstraints:@[
+        [bannerView.centerXAnchor constraintEqualToAnchor:guide.centerXAnchor],  // Центр по горизонтали
+        [bannerView.bottomAnchor constraintEqualToAnchor:guide.bottomAnchor]     // Прикрепление к нижней части safeArea
+    ]];
+}
 
 -(void) initialize:(NSString *)casId withAdTypes:(double)adTypes withTaggedAudience:(double)taggedAudience withConsentStatus:(double)consentStatus withCcpaStatus:(double)ccpaStatus isTestMode:(double)testMode {
     
@@ -100,7 +112,7 @@ RewardedCallback *rewardedCallback;
     rewardedCallback = [[RewardedCallback alloc] init];
     
     CASManagerBuilder *builder =  [CAS buildManager];
-    [builder withAdFlags:casAdTypes];
+    [builder withAdFlags:CASTypeFlagsBanner | CASTypeFlagsInterstitial | CASTypeFlagsRewarded];
     [builder withTestAdMode:testMode == 1 ? YES : NO];
     [builder withCompletionHandler:^(CASInitialConfig * _Nonnull config) {
         int initCallback = dsMapCreate();
@@ -113,6 +125,31 @@ RewardedCallback *rewardedCallback;
         CreateAsyncEventOfTypeWithDSMap(initCallback, EVENT_OTHER_SOCIAL);
     }];
     mediationManager = [builder createWithCasId:casId];
+}
+
+// Показываем баннер
+-(void) showBanner {
+    if (!bannerView) {
+        // Получаем адаптивный размер баннера
+        CASSize *adSize = [CASSize getAdaptiveBannerInWindow:g_controller.view.window];
+        
+        // Инициализация баннера
+        bannerView = [[CASBannerView alloc] initWithAdSize:adSize manager:mediationManager];
+        bannerView.rootViewController = g_controller;
+        [bannerView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        
+        // Добавляем баннер на экран
+        [g_controller.view addSubview:bannerView];
+        [self positionBannerViewAtBottomOfSafeArea:bannerView];
+    }
+}
+
+// Удаляем баннер и освобождаем память
+-(void) removeBanner {
+    if (bannerView) {
+        [bannerView removeFromSuperview];
+        bannerView = nil; // Освобождаем память
+    }
 }
 
 -(double) showRewardedAd {
