@@ -1,5 +1,5 @@
 # CAS-GameMaker
-The Clever Ads Solutions GameMaker plugin enables Game Maker developers to easily serve Mobile Ads on Android and iOS apps without having to write Java or Objective-C code. The plugin provides a pack resourses for requesting ads that is used by GML scripts in your Game Maker project.
+The Clever Ads Solutions GameMaker plugin enables Game Maker developers to easily serve Mobile Ads on Android apps without having to write Java. The plugin provides a pack resourses for requesting ads that is used by GML scripts in your Game Maker project.
 
 [![GitHub package.json version](https://img.shields.io/github/package-json/v/cleveradssolutions/CAS-GameMaker?label=GameMaker%20Package)](https://github.com/cleveradssolutions/CAS-GameMaker/releases/latest)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/CleverAdsSolutions/CAS-Android?label=CAS%20Android)](https://github.com/cleveradssolutions/CAS-Android)
