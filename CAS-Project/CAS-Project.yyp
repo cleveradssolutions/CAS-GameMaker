@@ -2,7 +2,7 @@
   "$GMProject":"v1",
   "%Name":"CAS-Project",
   "AudioGroups":[
-    {"$GMAudioGroup":"","%Name":"audiogroup_default","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
+    {"$GMAudioGroup":"v1","%Name":"audiogroup_default","exportDir":"","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
   ],
   "configs":{
     "children":[],
@@ -20,7 +20,7 @@
   "isEcma":false,
   "LibraryEmitters":[],
   "MetaData":{
-    "IDEVersion":"2024.13.1.193",
+    "IDEVersion":"2024.14.3.217",
   },
   "name":"CAS-Project",
   "resources":[
@@ -28,8 +28,6 @@
     {"id":{"name":"btnInitCAS","path":"objects/btnInitCAS/btnInitCAS.yy",},},
     {"id":{"name":"btnIsInterstitialReady","path":"objects/btnIsInterstitialReady/btnIsInterstitialReady.yy",},},
     {"id":{"name":"btnIsRewardedAdReady","path":"objects/btnIsRewardedAdReady/btnIsRewardedAdReady.yy",},},
-    {"id":{"name":"btnShowBannerBig","path":"objects/btnShowBannerBig/btnShowBannerBig.yy",},},
-    {"id":{"name":"btnShowBannerBottom","path":"objects/btnShowBannerBottom/btnShowBannerBottom.yy",},},
     {"id":{"name":"btnShowBannerTop","path":"objects/btnShowBannerTop/btnShowBannerTop.yy",},},
     {"id":{"name":"btnShowInterstitialAd","path":"objects/btnShowInterstitialAd/btnShowInterstitialAd.yy",},},
     {"id":{"name":"btnShowRewardedAd","path":"objects/btnShowRewardedAd/btnShowRewardedAd.yy",},},

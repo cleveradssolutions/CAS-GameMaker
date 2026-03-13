@@ -1,312 +1,385 @@
 package ${YYAndroidPackageName};
 
-import ${YYAndroidPackageName}.R;
-import ${YYAndroidPackageName}.RunnerActivity;
-
-import com.yoyogames.runner.RunnerJNILib;
-
-import android.os.Build;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.app.Activity;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.cleversolutions.ads.AdCallback;
-import com.cleversolutions.ads.AdError;
-import com.cleversolutions.ads.AdSize;
-import com.cleversolutions.ads.AdStatusHandler;
-import com.cleversolutions.ads.AdType;
-import com.cleversolutions.ads.ConsentFlow;
-import com.cleversolutions.ads.InitialConfiguration;
-import com.cleversolutions.ads.MediationManager;
-import com.cleversolutions.ads.android.CAS;
-import com.cleversolutions.ads.android.CASBannerView;
-import com.cleversolutions.ads.AdViewListener;
-import com.cleversolutions.ads.AdError;
+import com.yoyogames.runner.RunnerJNILib;
+import ${YYAndroidPackageName}.RunnerActivity;
 
-import java.util.ArrayList;
+import com.cleversolutions.ads.android.CAS;
+import com.cleversolutions.ads.MediationManager;
+import com.cleversolutions.ads.InitializationListener;
+import com.cleversolutions.ads.InitialConfiguration;
+import com.cleversolutions.ads.ConsentFlow;
+import com.cleversolutions.ads.AdType;
+import com.cleversolutions.ads.AdCallback;
+import com.cleversolutions.ads.AdStatusHandler;
+
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Gravity;
+import android.widget.FrameLayout;
+
+import com.cleversolutions.ads.AdSize;
+import com.cleversolutions.ads.AdError;
+import com.cleversolutions.ads.AdViewListener;
+import com.cleversolutions.ads.android.CASBannerView;
 
 public class CAS_GMwrapper {
-
     private static final int EVENT_OTHER_SOCIAL = 70;
-    private static final int ASYNC_RESPONSE_INITIALIZED = 324400;
-    private static final int ASYNC_RESPONSE_NOT_INITIALIZED = 324401;
-    private static final int ASYNC_RESPONSE_ON_REWARD = 324402;
-    private static final int ASYNC_RESPONSE_ON_INTERSTITIAL_COMPLETE = 324403;
+    private static final String TAG = "CAS_GM";
 
-    private static final int AD_TYPE_BANNER = 1;
-    private static final int AD_TYPE_INTERSTITIAL = 1 << 1;
-    private static final int AD_TYPE_REWARDED = 1 << 2;
+    private MediationManager cas; 
+    private boolean casInitialized = false;
+	
+    private String casIdSaved = null;
 
-    private static MediationManager mediationManager;
-    private static AdCallback rewardedAdCallback, interstitialCallback;
+    private CASBannerView bannerView = null;
+    private FrameLayout bannerHost = null;
 
-    private static CASBannerView bannerViewTop;
-    private static CASBannerView bannerViewBottom;
-    private static CASBannerView bannerViewBig;
+    private int bannerPosition = 0;
 
-    public static void initialize(String casId, double adTypes, String privacyPolicyURL, double testMode) {
-        int adTypesInt = (int) Math.round(adTypes);
-        ArrayList<AdType> adTypesAL = new ArrayList<>(3);
-        if ((adTypesInt & AD_TYPE_BANNER) == AD_TYPE_BANNER) adTypesAL.add(AdType.Banner);
-        if ((adTypesInt & AD_TYPE_INTERSTITIAL) == AD_TYPE_INTERSTITIAL) adTypesAL.add(AdType.Interstitial);
-        if ((adTypesInt & AD_TYPE_REWARDED) == AD_TYPE_REWARDED) adTypesAL.add(AdType.Rewarded);
+    private static Activity activity() {
+        return RunnerActivity.CurrentActivity;
+    }
 
-        rewardedAdCallback = new AdCallback() {
-            @Override public void onShown(@NonNull AdStatusHandler adStatusHandler) {}
-            @Override public void onShowFailed(@NonNull String s) {}
-            @Override public void onClicked() {}
-            @Override public void onComplete() {
-                int asyncCallback = RunnerJNILib.jCreateDsMap(null, null, null);
-                RunnerJNILib.DsMapAddDouble(asyncCallback, "id", ASYNC_RESPONSE_ON_REWARD);
-                RunnerJNILib.CreateAsynEventWithDSMap(asyncCallback, EVENT_OTHER_SOCIAL);
+    public void CAS_Init(final String casId, final double testMode) {
+        final Activity act = activity();
+        if (act == null) {
+            sendInitAsync(false, "Activity is null", null, false, -1);
+            return;
+        }
+
+        act.runOnUiThread(() -> {
+            try {
+                Log.d(TAG, "Initializing CAS. casId=" + casId + " testMode=" + (testMode == 1));
+
+                cas = CAS.buildManager()
+                        .withCasId(casId)
+                        .withTestAdMode(testMode == 1)
+                        .withAdTypes(AdType.Interstitial, AdType.Rewarded, AdType.Banner)
+                        .withConsentFlow(new ConsentFlow(true))
+                        .withCompletionListener(new InitializationListener() {
+                            @Override
+                            public void onCASInitialized(@NonNull InitialConfiguration config) {
+                                String err = config.getError();
+                                boolean ok = (err == null);
+                                casInitialized = ok;
+
+                                String country = config.getCountryCode();
+                                boolean consentRequired = config.isConsentRequired();
+                                int consentStatus = config.getConsentFlowStatus();
+
+                                Log.d(TAG, "CAS init complete. ok=" + ok
+                                        + " country=" + country
+                                        + " consentRequired=" + consentRequired
+                                        + " consentStatus=" + consentStatus
+                                        + (ok ? "" : (" error=" + err)));
+
+                                sendInitAsync(ok, err, country, consentRequired, consentStatus);
+                            }
+                        })
+                        .build(act);
+						
+						casIdSaved = casId;
+
+            } catch (Throwable t) {
+                Log.e(TAG, "CAS_Init failed", t);
+                casInitialized = false;
+                sendInitAsync(false, t.getMessage(), null, false, -1);
             }
-            @Override public void onClosed() {}
-        };
-
-        interstitialCallback = new AdCallback() {
-            @Override public void onShown(@NonNull AdStatusHandler adStatusHandler) {}
-            @Override public void onShowFailed(@NonNull String s) {}
-            @Override public void onClicked() {}
-            @Override public void onComplete() {
-                int asyncCallback = RunnerJNILib.jCreateDsMap(null, null, null);
-                RunnerJNILib.DsMapAddDouble(asyncCallback, "id", ASYNC_RESPONSE_ON_INTERSTITIAL_COMPLETE);
-                RunnerJNILib.CreateAsynEventWithDSMap(asyncCallback, EVENT_OTHER_SOCIAL);
-            }
-            @Override public void onClosed() {}
-        };
-
-        AdType[] adTypesArr = adTypesAL.toArray(new AdType[0]);
-
-        RunnerActivity.CurrentActivity.runOnUiThread(() -> {
-            mediationManager = CAS.buildManager()
-                    .withCasId(casId)
-                    .withAdTypes(adTypesArr)
-                    .withTestAdMode(testMode == 1)
-                    .withConsentFlow(new ConsentFlow().withPrivacyPolicy(privacyPolicyURL))
-                    .withCompletionListener((InitialConfiguration config) -> {
-                        int initCallback = RunnerJNILib.jCreateDsMap(null, null, null);
-                        if (config.getError() == null) {
-                            RunnerJNILib.DsMapAddDouble(initCallback, "id", ASYNC_RESPONSE_INITIALIZED);
-                        } else {
-                            RunnerJNILib.DsMapAddDouble(initCallback, "id", ASYNC_RESPONSE_NOT_INITIALIZED);
-                            RunnerJNILib.DsMapAddString(initCallback, "error", config.getError());
-                        }
-                        RunnerJNILib.CreateAsynEventWithDSMap(initCallback, EVENT_OTHER_SOCIAL);
-                    })
-                    .initialize(RunnerActivity.CurrentActivity);
         });
     }
 
+    public void CAS_BannerCreate(final double sizeType, final double position,
+                                 final double maxWidthDp, final double maxHeightDp,
+                                 final double autoload) {
+        final Activity act = activity();
+        if (act == null) return;
 
-    public static double isRewardedAdReady() {
-        return mediationManager != null && mediationManager.isRewardedAdReady() ? 1 : 0;
-    }
+        act.runOnUiThread(() -> {
+            try {
+                bannerPosition = (position == 1.0) ? 1 : 0;
 
-    public static double showRewardedAd() {
-        if (mediationManager == null) return 0;
-        if (!mediationManager.isRewardedAdReady()) return 0;
-        RunnerActivity.CurrentActivity.runOnUiThread(() ->
-                mediationManager.showRewardedAd(RunnerActivity.CurrentActivity, rewardedAdCallback));
-        return 1;
-    }
+                if (casIdSaved == null || casIdSaved.isEmpty()) {
+                    sendBannerEvent("failed", "CAS ID is null. Call CAS_Init first.");
+                    return;
+                }
 
-    public static double isInterstitialReady() {
-        return mediationManager != null && mediationManager.isInterstitialReady() ? 1 : 0;
-    }
+                ensureBannerHost(act);
 
-    public static double showInterstitialAd() {
-        if (mediationManager == null) return 0;
-        if (!mediationManager.isInterstitialReady()) return 0;
-        RunnerActivity.CurrentActivity.runOnUiThread(() ->
-                mediationManager.showInterstitial(RunnerActivity.CurrentActivity, interstitialCallback));
-        return 1;
-    }
+                internalBannerDestroy();
 
+                bannerView = new CASBannerView(act, casIdSaved);
 
-    private static AdViewListener makeBannerListener(final String where) {
-        return new AdViewListener() {
-            @Override public void onAdViewLoaded(@NonNull CASBannerView view) {
-                sendBannerEvent("loaded", where, null);
-            }
-            @Override public void onAdViewFailed(@NonNull CASBannerView view, @NonNull AdError error) {
-                sendBannerEvent("failed", where, error.getMessage());
-            }
-            @Override public void onAdViewClicked(@NonNull CASBannerView view) {
-                sendBannerEvent("clicked", where, null);
-            }
-            @Override public void onAdViewPresented(@NonNull CASBannerView view, @NonNull AdStatusHandler info) {
-                sendBannerEvent("impression", where, null);
-            }
-        };
-    }
+                AdSize adSize;
+                int st = (int) sizeType;
+                switch (st) {
+                    case 1:
+                        adSize = AdSize.getSmartBanner(act);
+                        break;
+                    case 2:
+                        adSize = AdSize.MEDIUM_RECTANGLE;
+                        break;
+                    case 3:
+                        adSize = AdSize.LEADERBOARD;
+                        break;
+					case 4: {
+						int w = (int) Math.max(0, maxWidthDp);
+						adSize = AdSize.getAdaptiveBanner(act, w);
+						break;
+					}
+					case 5: {
+						int w = (int) Math.max(0, maxWidthDp);
+						int h = (int) Math.max(0, maxHeightDp);
+						adSize = AdSize.getAdaptiveBanner(act, w, h);
+						break;
+					}
+                    case 0:
+                    default:
+                        adSize = AdSize.BANNER;
+                        break;
+                }
 
-    public static void showBannerAd_Bottom() {
-        if (mediationManager == null || bannerViewBottom != null) return;
+                bannerView.setSize(adSize);
+                bannerView.setAutoloadEnabled(autoload == 1.0);
 
-        RunnerActivity.CurrentActivity.runOnUiThread(() -> {
-            View rootView = RunnerActivity.CurrentActivity.findViewById(android.R.id.content).getRootView();
-            bannerViewBottom = new CASBannerView(RunnerActivity.CurrentActivity, mediationManager);
-            bannerViewBottom.setSize(AdSize.getAdaptiveBannerInScreen(RunnerActivity.CurrentActivity));
-            bannerViewBottom.setAutoloadEnabled(true);
-            bannerViewBottom.setAdListener(makeBannerListener("bottom"));
+                bannerView.setAdListener(bannerListener);
 
-            if (rootView instanceof FrameLayout) {
+                bannerHost.removeAllViews();
+
                 FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        Gravity.BOTTOM
-                );
-                bannerViewBottom.setLayoutParams(lp);
-            } else {
-                bannerViewBottom.setLayoutParams(new ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                ));
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                bannerViewBottom.setForegroundGravity(Gravity.CENTER);
-            }
-            ((ViewGroup) rootView).addView(bannerViewBottom);
-            sendBannerEvent("shown", "bottom", null);
-        });
-    }
-
-    public static void removeBannerAd_Bottom() {
-        if (mediationManager == null) return;
-
-        RunnerActivity.CurrentActivity.runOnUiThread(() -> {
-            ViewGroup rootView = (ViewGroup) RunnerActivity.CurrentActivity
-                    .findViewById(android.R.id.content).getRootView();
-            if (bannerViewBottom != null) {
-                rootView.removeView(bannerViewBottom);
-                bannerViewBottom.destroy();
-                bannerViewBottom = null;
-                sendBannerEvent("destroyed", "bottom", null);
-            }
-        });
-    }
-
-    public static void showBannerAd_Top() {
-        if (mediationManager == null || bannerViewTop != null) return;
-
-        RunnerActivity.CurrentActivity.runOnUiThread(() -> {
-            View rootView = RunnerActivity.CurrentActivity.findViewById(android.R.id.content).getRootView();
-            bannerViewTop = new CASBannerView(RunnerActivity.CurrentActivity, mediationManager);
-            bannerViewTop.setSize(AdSize.getAdaptiveBannerInScreen(RunnerActivity.CurrentActivity));
-            bannerViewTop.setAutoloadEnabled(true);
-            bannerViewTop.setAdListener(makeBannerListener("top"));
-
-            if (rootView instanceof FrameLayout) {
-                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        Gravity.TOP
-                );
-                bannerViewTop.setLayoutParams(lp);
-            } else {
-                bannerViewTop.setLayoutParams(new ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                ));
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                bannerViewTop.setForegroundGravity(Gravity.CENTER);
-            }
-            ((ViewGroup) rootView).addView(bannerViewTop);
-            sendBannerEvent("shown", "top", null);
-        });
-    }
-
-    public static void removeBannerAd_Top() {
-        if (mediationManager == null) return;
-
-        RunnerActivity.CurrentActivity.runOnUiThread(() -> {
-            ViewGroup rootView = (ViewGroup) RunnerActivity.CurrentActivity
-                    .findViewById(android.R.id.content).getRootView();
-            if (bannerViewTop != null) {
-                rootView.removeView(bannerViewTop);
-                bannerViewTop.destroy();
-                bannerViewTop = null;
-                sendBannerEvent("destroyed", "top", null);
-            }
-        });
-    }
-
-    public static void showBannerAd_Big(double posX, double posY) {
-        if (mediationManager == null || bannerViewBig != null) return;
-
-        RunnerActivity.CurrentActivity.runOnUiThread(() -> {
-            ViewGroup rootView = (ViewGroup) RunnerActivity.CurrentActivity
-                    .findViewById(android.R.id.content).getRootView();
-
-            bannerViewBig = new CASBannerView(RunnerActivity.CurrentActivity, mediationManager);
-            bannerViewBig.setSize(AdSize.MEDIUM_RECTANGLE);
-            bannerViewBig.setAutoloadEnabled(true);
-            bannerViewBig.setAdListener(makeBannerListener("big"));
-
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-            );
-            params.leftMargin = (int) Math.round(posX);
-            params.topMargin  = (int) Math.round(posY);
-            bannerViewBig.setLayoutParams(params);
-
-            rootView.addView(bannerViewBig);
-            sendBannerEvent("shown", "big", null);
-        });
-    }
-
-    public static void moveBannerAd_Big(double posX, double posY) {
-        if (mediationManager == null) return;
-
-        RunnerActivity.CurrentActivity.runOnUiThread(() -> {
-            if (bannerViewBig != null) {
-                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                 );
-                params.leftMargin = (int) Math.round(posX);
-                params.topMargin  = (int) Math.round(posY);
-                bannerViewBig.setLayoutParams(params);
+                lp.gravity = (bannerPosition == 1) ? (Gravity.TOP | Gravity.CENTER_HORIZONTAL)
+                                                   : (Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+
+                bannerHost.addView(bannerView, lp);
+				bannerView.setVisibility(View.VISIBLE);
+				bannerView.requestLayout();
+				bannerHost.requestLayout();
+				bannerHost.bringToFront();
+
+                sendBannerEvent("created", null);
+            } catch (Throwable t) {
+                Log.e(TAG, "CAS_BannerCreate failed", t);
+                sendBannerEvent("failed", t.getMessage());
             }
         });
     }
 
-    public static void removeBannerAd_Big() {
-        if (mediationManager == null) return;
+    public void CAS_BannerLoad() {
+        final Activity act = activity();
+        if (act == null) return;
+        act.runOnUiThread(() -> {
+            if (bannerView != null) bannerView.load();
+        });
+    }
 
-        RunnerActivity.CurrentActivity.runOnUiThread(() -> {
-            ViewGroup rootView = (ViewGroup) RunnerActivity.CurrentActivity
-                    .findViewById(android.R.id.content).getRootView();
-            if (bannerViewBig != null) {
-                rootView.removeView(bannerViewBig);
-                bannerViewBig.destroy();
-                bannerViewBig = null;
-                sendBannerEvent("destroyed", "big", null);
+    public void CAS_BannerShow() {
+        final Activity act = activity();
+        if (act == null) return;
+        act.runOnUiThread(() -> {
+            if (bannerHost != null) bannerHost.setVisibility(View.VISIBLE);
+        });
+    }
+
+    public void CAS_BannerHide() {
+        final Activity act = activity();
+        if (act == null) return;
+        act.runOnUiThread(() -> {
+            if (bannerHost != null) bannerHost.setVisibility(View.GONE);
+        });
+    }
+
+    public void CAS_BannerDestroy() {
+        final Activity act = activity();
+        if (act == null) return;
+        act.runOnUiThread(() -> {
+            internalBannerDestroy();
+            sendBannerEvent("destroyed", null);
+        });
+    }
+
+    public double CAS_BannerIsCreated() {
+        return (bannerView != null) ? 1.0 : 0.0;
+    }
+
+    public void CAS_BannerSetRefreshInterval(final double seconds) {
+        final Activity act = activity();
+        if (act == null) return;
+        act.runOnUiThread(() -> {
+            if (bannerView != null) bannerView.setRefreshInterval((int)Math.max(0, seconds));
+        });
+    }
+
+    public void CAS_BannerDisableRefresh() {
+        final Activity act = activity();
+        if (act == null) return;
+        act.runOnUiThread(() -> {
+            if (bannerView != null) bannerView.disableAdRefresh();
+        });
+    }
+
+    private void ensureBannerHost(Activity act) {
+        if (bannerHost != null) return;
+
+        ViewGroup content = act.findViewById(android.R.id.content);
+        bannerHost = new FrameLayout(act);
+        bannerHost.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        bannerHost.setClickable(false);
+        bannerHost.setFocusable(false);
+
+        content.addView(bannerHost);
+    }
+
+    private void internalBannerDestroy() {
+        try {
+            if (bannerHost != null) bannerHost.removeAllViews();
+            if (bannerView != null) {
+                bannerView.destroy();
+                bannerView = null;
             }
-        });
+        } catch (Throwable ignored) {}
     }
 
-    public static void setBannerVisibility(double visibility) {
-        if (mediationManager == null || bannerViewTop == null) return;
+    private final AdViewListener bannerListener = new AdViewListener() {
+        @Override
+        public void onAdViewLoaded(@NonNull CASBannerView view) {
+            Log.d(TAG, "Banner loaded");
+            sendBannerEvent("loaded", null);
+        }
 
-        RunnerActivity.CurrentActivity.runOnUiThread(() -> {
-            int vis = (Math.round(visibility) == 1) ? View.VISIBLE : View.GONE;
-            bannerViewTop.setVisibility(vis);
-            sendBannerEvent(vis == View.VISIBLE ? "shown" : "hidden", "top", null);
-        });
-    }
+        @Override
+        public void onAdViewFailed(@NonNull CASBannerView view, @NonNull AdError error) {
+            String msg = error.getMessage();
+            Log.d(TAG, "Banner failed: " + msg);
+            sendBannerEvent("failed", msg);
+        }
 
-    private static void sendBannerEvent(String state, String place, String errorOrNull) {
+        @Override
+        public void onAdViewClicked(@NonNull CASBannerView view) {
+            Log.d(TAG, "Banner clicked");
+            sendBannerEvent("clicked", null);
+        }
+
+        @Override
+        public void onAdViewPresented(@NonNull CASBannerView view, @NonNull AdStatusHandler info) {
+            Log.d(TAG, "Banner presented");
+            sendBannerEvent("presented", null);
+        }
+    };
+
+    private void sendBannerEvent(String state, String messageOrNull) {
         int map = RunnerJNILib.jCreateDsMap(null, null, null);
         RunnerJNILib.DsMapAddString(map, "type", "cas_banner");
-        RunnerJNILib.DsMapAddString(map, "state", state);    
-        if (place != null) RunnerJNILib.DsMapAddString(map, "place", place); 
+        RunnerJNILib.DsMapAddString(map, "state", state);
+        if (messageOrNull != null) RunnerJNILib.DsMapAddString(map, "error", messageOrNull);
+        RunnerJNILib.CreateAsynEventWithDSMap(map, EVENT_OTHER_SOCIAL);
+    }
+
+    public void CAS_LoadInterstitial() {
+        if (cas != null) cas.loadInterstitial();
+    }
+
+    public double CAS_IsInterstitialReady() {
+        return (cas != null && cas.isInterstitialReady()) ? 1.0 : 0.0;
+    }
+
+    public void CAS_ShowInterstitial() {
+        final Activity act = activity();
+        if (cas != null && act != null && cas.isInterstitialReady()) {
+            act.runOnUiThread(() -> cas.showInterstitial(act, interstitialCb));
+        }
+    }
+
+    public void CAS_LoadRewarded() {
+        if (cas != null) cas.loadRewardedAd();
+    }
+
+    public double CAS_IsRewardedReady() {
+        return (cas != null && cas.isRewardedAdReady()) ? 1.0 : 0.0;
+    }
+
+    public void CAS_ShowRewarded() {
+        final Activity act = activity();
+        if (cas != null && act != null && cas.isRewardedAdReady()) {
+            act.runOnUiThread(() -> cas.showRewardedAd(act, rewardedCb));
+        }
+    }
+	
+    private final AdCallback interstitialCb = new AdCallback() {
+        @Override public void onShown(@NonNull AdStatusHandler ad) { 
+            Log.d(TAG, "Interstitial shown");
+            sendInterstitialEvent("shown", null);
+        }
+        @Override public void onShowFailed(@NonNull String message) { 
+            Log.d(TAG, "Interstitial show failed: " + message);
+            sendInterstitialEvent("failed", message);
+        }
+        @Override public void onClicked() { /* можно послать событие */ }
+        @Override public void onComplete() { /* у межстранички нет награды */ }
+        @Override public void onClosed() { 
+            Log.d(TAG, "Interstitial closed");
+            sendInterstitialEvent("closed", null);
+        }
+    };
+
+    private final AdCallback rewardedCb = new AdCallback() {
+        @Override public void onShown(@NonNull AdStatusHandler ad) { 
+            Log.d(TAG, "Rewarded shown");
+            sendRewardedEvent("shown", null);
+        }
+        @Override public void onShowFailed(@NonNull String message) { 
+            Log.d(TAG, "Rewarded show failed: " + message);
+            sendRewardedEvent("failed", message);
+        }
+        @Override public void onClicked() { /* при желании можно послать событие */ }
+        @Override public void onComplete() { 
+            Log.d(TAG, "Reward granted");
+            sendRewardedEvent("complete", null);
+        }
+        @Override public void onClosed() { 
+            Log.d(TAG, "Rewarded closed");
+            sendRewardedEvent("closed", null);
+        }
+    };
+
+    public double CAS_IsInitialized() {
+        return casInitialized ? 1.0 : 0.0;
+    }
+
+    private void sendInitAsync(boolean ok, String errorOrNull, String countryOrNull,
+                               boolean consentRequired, int consentStatus) {
+        int map = RunnerJNILib.jCreateDsMap(null, null, null);
+        RunnerJNILib.DsMapAddString(map, "type", "cas_init");
+        RunnerJNILib.DsMapAddDouble(map, "success", ok ? 1 : 0);
         if (errorOrNull != null) RunnerJNILib.DsMapAddString(map, "error", errorOrNull);
+        if (countryOrNull != null) RunnerJNILib.DsMapAddString(map, "country", countryOrNull);
+        RunnerJNILib.DsMapAddDouble(map, "consent_required", consentRequired ? 1 : 0);
+        RunnerJNILib.DsMapAddDouble(map, "consent_status", consentStatus);
+        RunnerJNILib.CreateAsynEventWithDSMap(map, EVENT_OTHER_SOCIAL);
+    }
+
+    private void sendInterstitialEvent(String state, String messageOrNull) {
+        int map = RunnerJNILib.jCreateDsMap(null, null, null);
+        RunnerJNILib.DsMapAddString(map, "type", "cas_interstitial");
+        RunnerJNILib.DsMapAddString(map, "state", state);  
+        if (messageOrNull != null) RunnerJNILib.DsMapAddString(map, "error", messageOrNull);
+        RunnerJNILib.CreateAsynEventWithDSMap(map, EVENT_OTHER_SOCIAL);
+    }
+
+    private void sendRewardedEvent(String state, String messageOrNull) {
+        int map = RunnerJNILib.jCreateDsMap(null, null, null);
+        RunnerJNILib.DsMapAddString(map, "type", "cas_rewarded");
+        RunnerJNILib.DsMapAddString(map, "state", state);  
+        if (messageOrNull != null) RunnerJNILib.DsMapAddString(map, "error", messageOrNull);
         RunnerJNILib.CreateAsynEventWithDSMap(map, EVENT_OTHER_SOCIAL);
     }
 }
